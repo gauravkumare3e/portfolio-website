@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
+import { Environment, Text } from "@react-three/drei";
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import {
   BallCollider,
@@ -11,22 +11,30 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 
-const textureLoader = new THREE.TextureLoader();
-const imageUrls = [
-  "/images/react2.webp",
-  "/images/next2.webp",
-  "/images/node2.webp",
-  "/images/express.webp",
-  "/images/mongo.webp",
-  "/images/mysql.webp",
-  "/images/typescript.webp",
-  "/images/javascript.webp",
+const techList = [
+  { name: "AWS", color: "#FF9900" },
+  { name: "Docker", color: "#2496ED" },
+  { name: "K8s", color: "#326CE5" },
+  { name: "Linux", color: "#000000" },
+  { name: "Python", color: "#3776AB" },
+  { name: "Jenkins", color: "#D24939" },
+  { name: "MySQL", color: "#4479A1" },
+  { name: "MongoDB", color: "#47A248" },
+  { name: "Vercel", color: "#000000" },
+  { name: "Supabase", color: "#3ECF8E" },
+  { name: "Next.js", color: "#000000" },
+  { name: "Express", color: "#000000" },
+  { name: "JS", color: "#c9ac00" },
+  { name: "Nginx", color: "#009639" },
+  { name: "GitHub", color: "#000000" },
+  { name: "Postgres", color: "#336791" },
+  { name: "SQLite", color: "#003B57" },
+  { name: "Dynamo", color: "#4053D6" },
 ];
-const textures = imageUrls.map((url) => textureLoader.load(url));
 
 const sphereGeometry = new THREE.SphereGeometry(1, 28, 28);
 
-const spheres = [...Array(30)].map(() => ({
+const spheres = [...Array(40)].map(() => ({
   scale: [0.7, 1, 0.8, 1, 1][Math.floor(Math.random() * 5)],
 }));
 
@@ -35,6 +43,8 @@ type SphereProps = {
   scale: number;
   r?: typeof THREE.MathUtils.randFloatSpread;
   material: THREE.MeshPhysicalMaterial;
+  name: string;
+  textColor: string;
   isActive: boolean;
 };
 
@@ -43,6 +53,8 @@ function SphereGeo({
   scale,
   r = THREE.MathUtils.randFloatSpread,
   material,
+  name,
+  textColor,
   isActive,
 }: SphereProps) {
   const api = useRef<RapierRigidBody | null>(null);
@@ -85,8 +97,29 @@ function SphereGeo({
         scale={scale}
         geometry={sphereGeometry}
         material={material}
-        rotation={[0.3, 1, 1]}
-      />
+      >
+        <Text
+          position={[0, 0, 1.01]}
+          fontSize={0.35}
+          color={textColor}
+          anchorX="center"
+          anchorY="middle"
+          fontWeight={900}
+        >
+          {name}
+        </Text>
+        <Text
+          position={[0, 0, -1.01]}
+          rotation={[0, Math.PI, 0]}
+          fontSize={0.35}
+          color={textColor}
+          anchorX="center"
+          anchorY="middle"
+          fontWeight={900}
+        >
+          {name}
+        </Text>
+      </mesh>
     </RigidBody>
   );
 }
@@ -152,16 +185,15 @@ const TechStack = () => {
     };
   }, []);
   const materials = useMemo(() => {
-    return textures.map(
-      (texture) =>
+    return techList.map(
+      () =>
         new THREE.MeshPhysicalMaterial({
-          map: texture,
+          color: "#ffffff",
           emissive: "#ffffff",
-          emissiveMap: texture,
           emissiveIntensity: 0.3,
-          metalness: 0.5,
-          roughness: 1,
-          clearcoat: 0.1,
+          metalness: 0.1,
+          roughness: 0.2,
+          clearcoat: 0.8,
         })
     );
   }, []);
@@ -189,14 +221,19 @@ const TechStack = () => {
         <directionalLight position={[0, 5, -4]} intensity={2} />
         <Physics gravity={[0, 0, 0]}>
           <Pointer isActive={isActive} />
-          {spheres.map((props, i) => (
-            <SphereGeo
-              key={i}
-              {...props}
-              material={materials[Math.floor(Math.random() * materials.length)]}
-              isActive={isActive}
-            />
-          ))}
+          {spheres.map((props, i) => {
+            const matIndex = Math.floor(Math.random() * materials.length);
+            return (
+              <SphereGeo
+                key={i}
+                {...props}
+                material={materials[matIndex]}
+                name={techList[matIndex].name}
+                textColor={techList[matIndex].color}
+                isActive={isActive}
+              />
+            );
+          })}
         </Physics>
         <Environment
           files="/models/char_enviorment.hdr"
