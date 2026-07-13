@@ -47,7 +47,7 @@ const Career = () => {
               <h3>2022 - 2026</h3>
             </div>
             <p>
-              Final year B.Tech student progressing with a CGPA of 8.1.
+              Graduated with a CGPA of 8.34.
             </p>
           </div>
         </div>
